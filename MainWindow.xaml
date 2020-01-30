@@ -1,0 +1,26 @@
+﻿<Window x:Class="Aoe2DeRanking.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aoe2DeRanking"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid ShowGridLines="True">
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="32,11,0,0" TextWrapping="Wrap" Text="PlayerName" VerticalAlignment="Top" Width="284" Name="PlayerName"  />
+        <Button Content="Search" HorizontalAlignment="Left" Margin="347,13,0,0" VerticalAlignment="Top" Width="103" Click="btnSearchPlayer_Click"/>
+        <DataGrid HorizontalAlignment="Left" Height="330" Margin="10,79,0,0" VerticalAlignment="Top" Width="772" CanUserAddRows="False" AutoGenerateColumns="False" Name="MyDataGrid" ItemsSource="{Binding Source=Players}" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Width="*" IsReadOnly="True" Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Unranked" Width="*" IsReadOnly="True" Binding="{Binding UnrankedRating}"/>
+                <DataGridTextColumn Header="DM" Width="*" IsReadOnly="True" Binding="{Binding DMRating}"/>
+                <DataGridTextColumn Header="TeamDM" Width="*" IsReadOnly="True" Binding="{Binding TeamDMRating}"/>
+                <DataGridTextColumn Header="RM" Width="*" IsReadOnly="True" Binding="{Binding RMRating}"/>
+                <DataGridTextColumn Header="TeamRM" Width="*" IsReadOnly="True" Binding="{Binding TeamRMRating}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBlock HorizontalAlignment="Center" Margin="10,48,10,0" TextWrapping="Wrap" Text="Errors!" VerticalAlignment="Top" Width="772" TextAlignment="Center" FontWeight="Bold" Name="tbError"/>
+        <ProgressBar HorizontalAlignment="Left" Height="20" Margin="473,13,0,0" VerticalAlignment="Top" Width="309" Name="pbSearch"/>
+
+    </Grid>
+</Window>
