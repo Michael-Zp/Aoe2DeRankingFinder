@@ -251,5 +251,6 @@ namespace Aoe2DeRanking
             client.Dispose();
             pbSearch.Value = 0;
         }
+        
     }
 }

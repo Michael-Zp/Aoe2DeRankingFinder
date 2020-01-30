@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.1000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aoe2DeRankingFinder", "Aoe2DeRankingFinder.csproj", "{6694951B-7860-49AF-93C1-E4A248FD1517}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aoe2DeRankingFinderWebApp", "..\WebApp\Aoe2DeRankingFinderWebApp.csproj", "{A6672E76-D6A9-4C0C-A85B-2ACB1327AE4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6694951B-7860-49AF-93C1-E4A248FD1517}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6694951B-7860-49AF-93C1-E4A248FD1517}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6694951B-7860-49AF-93C1-E4A248FD1517}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6672E76-D6A9-4C0C-A85B-2ACB1327AE4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6672E76-D6A9-4C0C-A85B-2ACB1327AE4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6672E76-D6A9-4C0C-A85B-2ACB1327AE4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6672E76-D6A9-4C0C-A85B-2ACB1327AE4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

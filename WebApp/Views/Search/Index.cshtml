@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Search";
+}
+
+@model IEnumerable<WebApp.Models.Player>
+&nbsp;&nbsp
+
+@using (Html.BeginForm("Index", "Search", FormMethod.Get))
+{
+    <p style="display:inline">Steam name:</p>
+    <input type="text" name="name" />
+    <input type="submit" value="Search" />
+}
+
+<h2>@ViewData["Error"]</h2>
+
+<div><b>Table Format Data Displaying in ForEach</b><br /></div>
+<table class="table table-bordered table-responsive table-hover">
+    <tr>
+        <th>Name</th>
+        <th>Unranked Rating</th>
+        <th>DM Rating</th>
+        <th>Team DM Rating</th>
+        <th>RM Rating</th>
+        <th>Team RM Rating</th>
+    </tr>
+    @foreach (var d in Model)
+    {
+        <tr>
+            <td>@d.Name</td>
+            <td>@d.UnrankedRating</td>
+            <td>@d.DMRating</td>
+            <td>@d.TeamDMRating</td>
+            <td>@d.RMRating</td>
+            <td>@d.TeamRMRating</td>
+        </tr>
+    }
+</table>  
