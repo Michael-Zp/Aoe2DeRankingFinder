@@ -4,13 +4,13 @@
     {
         public string Name { get; set; }
         public string SteamId { get; set; }
-        public int UnrankedRating { get; set; }
-        public int DMRating { get; set; }
-        public int TeamDMRating { get; set; }
-        public int RMRating { get; set; }
-        public int TeamRMRating { get; set; }
+        public string UnrankedRating { get; set; }
+        public string DMRating { get; set; }
+        public string TeamDMRating { get; set; }
+        public string RMRating { get; set; }
+        public string TeamRMRating { get; set; }
 
-        public Player(string name, string steamId, int unrankedRating, int dMRating, int teamDMRating, int rMRating, int teamRMRating)
+        public Player(string name, string steamId, string unrankedRating, string dMRating, string teamDMRating, string rMRating, string teamRMRating)
         {
             Name = name;
             SteamId = steamId;
@@ -25,11 +25,11 @@
         {
             Name = "NameName";
             SteamId = "1234";
-            UnrankedRating = -1;
-            DMRating = -1;
-            TeamDMRating = -1;
-            RMRating = -1;
-            TeamRMRating = -1;
+            UnrankedRating = "-";
+            DMRating = "-";
+            TeamDMRating = "-";
+            RMRating = "-";
+            TeamRMRating = "-";
         }
     }
 }

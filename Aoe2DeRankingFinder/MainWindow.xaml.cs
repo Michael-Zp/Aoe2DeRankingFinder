@@ -25,13 +25,13 @@ namespace Aoe2DeRanking
         {
             public string Name { get; set; }
             public string SteamId { get; set; }
-            public int UnrankedRating { get; set; }
-            public int DMRating { get; set; }
-            public int TeamDMRating { get; set; }
-            public int RMRating { get; set; }
-            public int TeamRMRating { get; set; }
+            public string UnrankedRating { get; set; }
+            public string DMRating { get; set; }
+            public string TeamDMRating { get; set; }
+            public string RMRating { get; set; }
+            public string TeamRMRating { get; set; }
 
-            public Player(string name, string steamId, int unrankedRating, int dMRating, int teamDMRating, int rMRating, int teamRMRating)
+            public Player(string name, string steamId, string unrankedRating, string dMRating, string teamDMRating, string rMRating, string teamRMRating)
             {
                 Name = name;
                 SteamId = steamId;
@@ -46,17 +46,17 @@ namespace Aoe2DeRanking
             {
                 Name = "NameName";
                 SteamId = "1234";
-                UnrankedRating = -1;
-                DMRating = -1;
-                TeamDMRating = -1;
-                RMRating = -1;
-                TeamRMRating = -1;
+                UnrankedRating = "-";
+                DMRating = "-";
+                TeamDMRating = "-";
+                RMRating = "-";
+                TeamRMRating = "-";
             }
         }
 
         ObservableCollection<Player> players = new ObservableCollection<Player>()
             {
-                new Player("1 island 3 ranges", "123456789", -90, -90, -90, -90, -90),
+                new Player("1 island 3 ranges", "123456789", "-90", "-90", "-90", "-90", "-90"),
             };
 
         public MainWindow()
@@ -109,34 +109,40 @@ namespace Aoe2DeRanking
                 SteamId = steamId
             };
 
-            var unrankedTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=0&steam_id=" + currentPlayer.SteamId);
-            var DMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=1&steam_id=" + currentPlayer.SteamId);
-            var teamDMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=2&steam_id=" + currentPlayer.SteamId);
-            var RMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=3&steam_id=" + currentPlayer.SteamId);
-            var teamRMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=4&steam_id=" + currentPlayer.SteamId);
+            if(currentPlayer.SteamId != null)
+            {
+                var unrankedTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=0&steam_id=" + currentPlayer.SteamId);
+                var DMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=1&steam_id=" + currentPlayer.SteamId);
+                var teamDMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=2&steam_id=" + currentPlayer.SteamId);
+                var RMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=3&steam_id=" + currentPlayer.SteamId);
+                var teamRMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=4&steam_id=" + currentPlayer.SteamId);
 
-            dynamic unranked = await unrankedTask;
-            dynamic DM = await DMTask;
-            dynamic teamDM = await teamDMTask;
-            dynamic RM = await RMTask;
-            dynamic teamRM = await teamRMTask;
+                dynamic unranked = await unrankedTask;
+                dynamic DM = await DMTask;
+                dynamic teamDM = await teamDMTask;
+                dynamic RM = await RMTask;
+                dynamic teamRM = await teamRMTask;
 
 
-            if (unranked.count > 0)
-                currentPlayer.UnrankedRating = unranked.leaderboard[0].rating;
+                if (unranked.count > 0)
+                    currentPlayer.UnrankedRating = unranked.leaderboard[0].rating;
 
-            if (DM.count > 0)
-                currentPlayer.DMRating = DM.leaderboard[0].rating;
+                if (DM.count > 0)
+                    currentPlayer.DMRating = DM.leaderboard[0].rating;
 
-            if (teamDM.count > 0)
-                currentPlayer.TeamDMRating = teamDM.leaderboard[0].rating;
+                if (teamDM.count > 0)
+                    currentPlayer.TeamDMRating = teamDM.leaderboard[0].rating;
 
-            if (RM.count > 0)
-                currentPlayer.RMRating = RM.leaderboard[0].rating;
+                if (RM.count > 0)
+                    currentPlayer.RMRating = RM.leaderboard[0].rating;
 
-            if (teamRM.count > 0)
-                currentPlayer.TeamRMRating = teamRM.leaderboard[0].rating;
-
+                if (teamRM.count > 0)
+                    currentPlayer.TeamRMRating = teamRM.leaderboard[0].rating;
+            }
+            else
+            {
+                currentPlayer.Name = currentPlayer.Name + "*";
+            }
             return currentPlayer;
         }
 
@@ -167,7 +173,7 @@ namespace Aoe2DeRanking
                 var request = WebRequest.CreateHttp(@"http://steamrep.com/search?q=" + steamName);
                 var streamResponse = request.GetResponseAsync();
 
-                Regex steamIdRegex = new Regex(@"\s(\d{17})\s", RegexOptions.Compiled);
+                Regex steamIdRegex = new Regex(@"\s\d{17}\s", RegexOptions.Compiled);
 
                 pbSearch.Value = 15;
 

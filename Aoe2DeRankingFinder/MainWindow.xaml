@@ -21,6 +21,7 @@
         </DataGrid>
         <TextBlock HorizontalAlignment="Center" Margin="10,48,10,0" TextWrapping="Wrap" Text="Errors!" VerticalAlignment="Top" Width="772" TextAlignment="Center" FontWeight="Bold" Name="tbError"/>
         <ProgressBar HorizontalAlignment="Left" Height="20" Margin="473,13,0,0" VerticalAlignment="Top" Width="309" Name="pbSearch"/>
+        <TextBlock HorizontalAlignment="Left" Margin="121,261,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="553"><Span Foreground="Black" FontSize="12.6666666666667" FontFamily="Consolas"><Run Text="* Players who bought the game not on Steam are not supported by Aoe2.net ."/></Span></TextBlock>
 
     </Grid>
 </Window>

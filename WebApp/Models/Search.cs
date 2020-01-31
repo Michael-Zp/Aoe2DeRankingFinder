@@ -61,34 +61,40 @@ namespace WebApp.Models
                 SteamId = steamId
             };
 
-            var unrankedTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=0&steam_id=" + currentPlayer.SteamId);
-            var DMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=1&steam_id=" + currentPlayer.SteamId);
-            var teamDMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=2&steam_id=" + currentPlayer.SteamId);
-            var RMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=3&steam_id=" + currentPlayer.SteamId);
-            var teamRMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=4&steam_id=" + currentPlayer.SteamId);
+            if (currentPlayer.SteamId != null)
+            {
+                var unrankedTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=0&steam_id=" + currentPlayer.SteamId);
+                var DMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=1&steam_id=" + currentPlayer.SteamId);
+                var teamDMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=2&steam_id=" + currentPlayer.SteamId);
+                var RMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=3&steam_id=" + currentPlayer.SteamId);
+                var teamRMTask = GetJson(@"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=4&steam_id=" + currentPlayer.SteamId);
 
-            dynamic unranked = await unrankedTask;
-            dynamic DM = await DMTask;
-            dynamic teamDM = await teamDMTask;
-            dynamic RM = await RMTask;
-            dynamic teamRM = await teamRMTask;
+                dynamic unranked = await unrankedTask;
+                dynamic DM = await DMTask;
+                dynamic teamDM = await teamDMTask;
+                dynamic RM = await RMTask;
+                dynamic teamRM = await teamRMTask;
 
 
-            if (unranked.count > 0)
-                currentPlayer.UnrankedRating = unranked.leaderboard[0].rating;
+                if (unranked.count > 0)
+                    currentPlayer.UnrankedRating = unranked.leaderboard[0].rating;
 
-            if (DM.count > 0)
-                currentPlayer.DMRating = DM.leaderboard[0].rating;
+                if (DM.count > 0)
+                    currentPlayer.DMRating = DM.leaderboard[0].rating;
 
-            if (teamDM.count > 0)
-                currentPlayer.TeamDMRating = teamDM.leaderboard[0].rating;
+                if (teamDM.count > 0)
+                    currentPlayer.TeamDMRating = teamDM.leaderboard[0].rating;
 
-            if (RM.count > 0)
-                currentPlayer.RMRating = RM.leaderboard[0].rating;
+                if (RM.count > 0)
+                    currentPlayer.RMRating = RM.leaderboard[0].rating;
 
-            if (teamRM.count > 0)
-                currentPlayer.TeamRMRating = teamRM.leaderboard[0].rating;
-
+                if (teamRM.count > 0)
+                    currentPlayer.TeamRMRating = teamRM.leaderboard[0].rating;
+            }
+            else
+            {
+                currentPlayer.Name = currentPlayer.Name + "*";
+            }
             return currentPlayer;
         }
 
