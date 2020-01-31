@@ -2,20 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 
 namespace Aoe2DeRanking
 {
@@ -69,7 +62,7 @@ namespace Aoe2DeRanking
         public MainWindow()
         {
             InitializeComponent();
-            
+
             MyDataGrid.ItemsSource = players;
 
             tbError.Text = "";
@@ -83,22 +76,29 @@ namespace Aoe2DeRanking
 
         async private Task<object> GetJson(string url)
         {
-            HttpClient client = new HttpClient();
-            HttpResponseMessage responseBody = await client.GetAsync(url);
-
-            if(!responseBody.IsSuccessStatusCode)
+            HttpWebRequest request = WebRequest.CreateHttp(url);
+            HttpWebResponse response = (HttpWebResponse)(await request.GetResponseAsync());
+            
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                if(responseBody.StatusCode == System.Net.HttpStatusCode.NotFound)
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     throw new HttpResourceNotFoundException("");
                 }
 
-                responseBody.EnsureSuccessStatusCode();
+                //Yes this is filthy, but it outputs standard error messages and I don´t know how else to access this method
+                HttpResponseMessage msg = new HttpResponseMessage
+                {
+                    StatusCode = response.StatusCode
+                };
+                msg.EnsureSuccessStatusCode();
             }
 
-            client.Dispose();
-
-            return JsonConvert.DeserializeObject(await responseBody.Content.ReadAsStringAsync());
+            var responseStream = response.GetResponseStream();
+            
+            dynamic json = JsonConvert.DeserializeObject((new StreamReader(responseStream)).ReadToEnd());
+            
+            return json;
         }
 
         async private Task<Player> GetPlayer(string steamId, string name)
@@ -146,12 +146,17 @@ namespace Aoe2DeRanking
             { }
         }
 
+        private void Measure(Stopwatch sw, string label)
+        {
+            Console.WriteLine(label + ":\t" + sw.ElapsedMilliseconds);
+            sw.Restart();
+        }
+
         async private void btnSearchPlayer_Click(object sender, RoutedEventArgs e)
         {
             tbError.Text = "";
             pbSearch.Value = 0;
 
-            HttpClient client = new HttpClient();
 
             string steamName = PlayerName.Text;
 
@@ -159,25 +164,31 @@ namespace Aoe2DeRanking
             string searchedPlayerSteamId = DefaultSteamId;
             try
             {
-                string responseBody = await client.GetStringAsync(@"http://steamrep.com/search?q=" + steamName);
-                Regex steamIdRegex = new Regex(@"\d{17}", RegexOptions.Compiled);
+                var request = WebRequest.CreateHttp(@"http://steamrep.com/search?q=" + steamName);
+                var streamResponse = request.GetResponseAsync();
+
+                Regex steamIdRegex = new Regex(@"\s(\d{17})\s", RegexOptions.Compiled);
 
                 pbSearch.Value = 15;
 
-                foreach (string line in responseBody.Split('\n'))
-                {
-                    if (line.Contains("steamID64: https"))
-                    {
-                        foreach (var urlPart in line.Split('/'))
-                        {
-                            if (steamIdRegex.IsMatch(urlPart))
-                            {
-                                searchedPlayerSteamId = urlPart;
-                            }
-                        }
+                var response = await streamResponse;
 
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+
+
+                do
+                {
+                    var line = sr.ReadLine();
+
+                    var match = steamIdRegex.Match(line);
+
+                    if (match.Success)
+                    {
+                        searchedPlayerSteamId = match.Value.Trim();
+                        break;
                     }
                 }
+                while (!sr.EndOfStream);
             }
             catch (HttpRequestException)
             {
@@ -187,34 +198,34 @@ namespace Aoe2DeRanking
             pbSearch.Value = 20;
 
             try
-            { 
+            {
                 if (searchedPlayerSteamId.Equals(DefaultSteamId))
                 {
                     throw new PlayerNotFoundException(steamName);
                 }
-                
-                dynamic lastMatchJson = await GetJson(@"https://aoe2.net/api/player/lastmatch?game=aoe2de&steam_id=" + searchedPlayerSteamId);
 
+                dynamic lastMatchJson = await GetJson(@"https://aoe2.net/api/player/lastmatch?game=aoe2de&steam_id=" + searchedPlayerSteamId);
+                
                 pbSearch.Value = 35;
 
                 dynamic playersOfLastMatch = lastMatchJson.last_match.players;
-
-               
+                
 
                 int count = 0;
-                foreach(dynamic player in playersOfLastMatch.Children())
+                foreach (dynamic player in playersOfLastMatch.Children())
                 {
                     count++;
                 }
 
                 Task<Player>[] tempPlayersTasks = new Task<Player>[count];
-
+                
                 int i = 0;
                 foreach (dynamic player in playersOfLastMatch.Children())
                 {
                     tempPlayersTasks[i] = GetPlayer((string)player.steam_id, (string)player.name);
                     i++;
                 }
+
 
                 pbSearch.Value = 50;
 
@@ -226,6 +237,7 @@ namespace Aoe2DeRanking
 
                     pbSearch.Value = pbSearch.Value + 1.0 / count * 50.0;
                 }
+                
 
                 players.Clear();
 
@@ -233,6 +245,7 @@ namespace Aoe2DeRanking
                 {
                     players.Add(player);
                 }
+                
             }
             catch (HttpResourceNotFoundException)
             {
@@ -246,11 +259,10 @@ namespace Aoe2DeRanking
             {
                 tbError.Text = "Request to aoe2.net failed. " + ex.Message;
             }
-            
 
-            client.Dispose();
+
             pbSearch.Value = 0;
         }
-        
+
     }
 }

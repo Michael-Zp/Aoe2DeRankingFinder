@@ -8,7 +8,7 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid ShowGridLines="True">
         <TextBox HorizontalAlignment="Left" Height="23" Margin="32,11,0,0" TextWrapping="Wrap" Text="PlayerName" VerticalAlignment="Top" Width="284" Name="PlayerName"  />
-        <Button Content="Search" HorizontalAlignment="Left" Margin="347,13,0,0" VerticalAlignment="Top" Width="103" Click="btnSearchPlayer_Click"/>
+        <Button Content="Search" HorizontalAlignment="Left" Margin="347,13,0,385" Width="103" Click="btnSearchPlayer_Click"/>
         <DataGrid HorizontalAlignment="Left" Height="330" Margin="10,79,0,0" VerticalAlignment="Top" Width="772" CanUserAddRows="False" AutoGenerateColumns="False" Name="MyDataGrid" ItemsSource="{Binding Source=Players}" >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Width="*" IsReadOnly="True" Binding="{Binding Name}" />

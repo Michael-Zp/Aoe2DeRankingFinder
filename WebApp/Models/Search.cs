@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,13 +13,11 @@ namespace WebApp.Models
     {
         public List<Player> Players { get; set; }
         public string ErrorText { get; set; }
-        public int ProgressBarValue { get; set; }
 
         public SearchModel()
         {
             Players = new List<Player>();
             ErrorText = "ErrorText";
-            ProgressBarValue = 50;
         }
 
         private class HttpResourceNotFoundException : Exception
@@ -28,22 +28,29 @@ namespace WebApp.Models
 
         async private Task<object> GetJson(string url)
         {
-            HttpClient client = new HttpClient();
-            HttpResponseMessage responseBody = await client.GetAsync(url);
+            HttpWebRequest request = WebRequest.CreateHttp(url);
+            HttpWebResponse response = (HttpWebResponse)(await request.GetResponseAsync());
 
-            if (!responseBody.IsSuccessStatusCode)
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                if (responseBody.StatusCode == System.Net.HttpStatusCode.NotFound)
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     throw new HttpResourceNotFoundException("");
                 }
 
-                responseBody.EnsureSuccessStatusCode();
+                //Yes this is filthy, but it outputs standard error messages and I don´t know how else to access this method
+                HttpResponseMessage msg = new HttpResponseMessage
+                {
+                    StatusCode = response.StatusCode
+                };
+                msg.EnsureSuccessStatusCode();
             }
 
-            client.Dispose();
+            var responseStream = response.GetResponseStream();
 
-            return JsonConvert.DeserializeObject(await responseBody.Content.ReadAsStringAsync());
+            dynamic json = JsonConvert.DeserializeObject((new StreamReader(responseStream)).ReadToEnd());
+
+            return json;
         }
 
         async private Task<Player> GetPlayer(string steamId, string name)
@@ -98,34 +105,33 @@ namespace WebApp.Models
             bool success = true;
 
             List<Player> outPlayers = new List<Player>();
-
-            HttpClient client = new HttpClient();
             
-            string DefaultSteamId = "ThisIsNoIDPunk";
+            const string DefaultSteamId = "ThisIsNoIDPunk";
             string searchedPlayerSteamId = DefaultSteamId;
             try
             {
-                string url = @"http://steamrep.com/search?q=" + steamName;
+                var request = WebRequest.CreateHttp(@"http://steamrep.com/search?q=" + steamName);
+                var streamResponse = request.GetResponseAsync();
 
-                string responseBody = await client.GetStringAsync(url);
-                Regex steamIdRegex = new Regex(@"\d{17}", RegexOptions.Compiled);
+                Regex steamIdRegex = new Regex(@"\s(\d{17})\s", RegexOptions.Compiled);
                 
-                ProgressBarValue = 15;
+                var response = await streamResponse;
 
-                foreach (string line in responseBody.Split('\n'))
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                
+                do
                 {
-                    if (line.Contains("steamID64: https"))
-                    {
-                        foreach (var urlPart in line.Split('/'))
-                        {
-                            if (steamIdRegex.IsMatch(urlPart))
-                            {
-                                searchedPlayerSteamId = urlPart;
-                            }
-                        }
+                    var line = sr.ReadLine();
 
+                    var match = steamIdRegex.Match(line);
+
+                    if (match.Success)
+                    {
+                        searchedPlayerSteamId = match.Value.Trim();
+                        break;
                     }
                 }
+                while (!sr.EndOfStream);
             }
             catch (HttpRequestException)
             {
@@ -133,10 +139,8 @@ namespace WebApp.Models
                 success = false;
             }
 
-            if(success)
+            if (success)
             {
-                ProgressBarValue = 20;
-
                 try
                 {
                     if (searchedPlayerSteamId.Equals(DefaultSteamId))
@@ -145,9 +149,7 @@ namespace WebApp.Models
                     }
 
                     dynamic lastMatchJson = await GetJson(@"https://aoe2.net/api/player/lastmatch?game=aoe2de&steam_id=" + searchedPlayerSteamId);
-
-                    ProgressBarValue = 35;
-
+                
                     dynamic playersOfLastMatch = lastMatchJson.last_match.players;
 
 
@@ -166,16 +168,13 @@ namespace WebApp.Models
                         tempPlayersTasks[i] = GetPlayer((string)player.steam_id, (string)player.name);
                         i++;
                     }
-
-                    ProgressBarValue = 50;
+                    
 
                     List<Player> tempPlayers = new List<Player>();
 
                     foreach (var playerTask in tempPlayersTasks)
                     {
                         tempPlayers.Add(await playerTask);
-
-                        ProgressBarValue = ProgressBarValue + (int)(1.0 / count * 50.0);
                     }
 
                     outPlayers.Clear();
@@ -207,9 +206,6 @@ namespace WebApp.Models
                 }
             }
             
-
-            client.Dispose();
-            ProgressBarValue = 0;
 
             Players = outPlayers;
 
