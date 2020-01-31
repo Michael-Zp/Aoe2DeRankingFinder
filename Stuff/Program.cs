@@ -8,16 +8,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace WebApp
+namespace Stuff
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args)
-                .UseUrls("http://localhost:7500/")
-                .Build()
-                .Run();
+            CreateWebHostBuilder(args).Build().Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
