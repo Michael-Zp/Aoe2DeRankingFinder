@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Encodings.Web;
 using WebApp.Models;
 using System.Threading.Tasks;
 
@@ -20,9 +19,7 @@ namespace WebApp.Controllers
                 ViewData["Error"] = "";
                 return View(model.Players);
             }
-
-
-
+            
             var success = await model.FillPlayers(name);
 
             if (success)
@@ -36,12 +33,8 @@ namespace WebApp.Controllers
             return View(model.Players);
         }
 
-        async public Task<IActionResult> Index(string name, string delayed)
+        async public Task<IActionResult> Index(string name)
         {
-            if(!string.IsNullOrEmpty(delayed))
-                if(delayed.Equals("true"))
-                    System.Threading.Thread.Sleep(30000);
-
             return await Search(name);
         }
     }

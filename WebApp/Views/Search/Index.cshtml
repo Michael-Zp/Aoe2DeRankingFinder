@@ -5,16 +5,67 @@
 @model IEnumerable<WebApp.Models.Player>
 &nbsp;&nbsp
 
+<script>
+
+    var delayedSearchCount = 0;
+    var delayedSearchCurrentId = 0;
+    var delayedSearchRunning = {};
+
+    function delayedSearch() {
+        if (delayedSearchCount > 0) {
+            delayedSearchCount = 0;
+            delayedSearchRunning[delayedSearchCurrentId] = false;
+            document.getElementById("btnDelayedSearch").innerText = "Search in 30 seconds";
+        }
+        else {
+            delayedSearchCount = 31;
+
+            delayedSearchCurrentId++;
+            delayedSearchRunning[delayedSearchCurrentId] = true;
+
+            delayedSearchStep(delayedSearchCurrentId);
+
+        }
+    }
+
+    function delayedSearchStep(id) {
+
+        if (delayedSearchRunning[id] == false) {
+            delete delayedSearchRunning[id];
+            return;
+        }
+
+        delayedSearchCount--;
+
+
+        document.getElementById("btnDelayedSearch").innerText = "Abort (" + delayedSearchCount + "s)";
+
+        if (delayedSearchCount <= 0) {
+            search();
+            return;
+        }
+
+        setTimeout(delayedSearchStep, 1000, id)
+    }
+
+    function search() {
+        document.forms["searchForm"].submit();
+    }
+</script>
+
+
 <p>Either just type the name and search or use the delayed search to press the button before the game starts and get the results after the game is loaded.</p>
 
 &nbsp
 
-@using (Html.BeginForm("Index", "Search", FormMethod.Get))
+
+
+@using (Html.BeginForm("Index", "Search", FormMethod.Get, new { name = "searchForm", id = "searchForm" }))
 {
     <p style="display:inline">Steam name:</p>
-    <input type="text" name="name" value="@ViewData["Name"]"/>
-    <button type="submit" name="delayed" value="false">Search</button>
-    <button type="submit" name="delayed" value="true">Search in 30 seconds</button>
+    <input type="text" name="name" value="@ViewData["Name"]" />
+    <button type="button" onclick="search()">Search</button>
+    <button type="button" id="btnDelayedSearch" onclick="delayedSearch()">Search in 30 seconds</button>
 }
 
 <h2>@ViewData["Error"]</h2>
