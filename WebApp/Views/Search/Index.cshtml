@@ -5,16 +5,20 @@
 @model IEnumerable<WebApp.Models.Player>
 &nbsp;&nbsp
 
+<p>Either just type the name and search or use the delayed search to press the button before the game starts and get the results after the game is loaded.</p>
+
+&nbsp
+
 @using (Html.BeginForm("Index", "Search", FormMethod.Get))
 {
     <p style="display:inline">Steam name:</p>
-    <input type="text" name="name" />
-    <input type="submit" value="Search" />
+    <input type="text" name="name" value="@ViewData["Name"]"/>
+    <button type="submit" name="delayed" value="false">Search</button>
+    <button type="submit" name="delayed" value="true">Search in 30 seconds</button>
 }
 
 <h2>@ViewData["Error"]</h2>
 
-<div><b>Table Format Data Displaying in ForEach</b><br /></div>
 <table class="table table-bordered table-responsive table-hover">
     <tr>
         <th>Name</th>
@@ -35,7 +39,7 @@
             <td>@d.TeamRMRating</td>
         </tr>
     }
-</table>  
+</table>
 
 &nbsp;&nbsp
 
